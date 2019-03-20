@@ -7,10 +7,53 @@ const superEggDrop = (K, N) => {
     return superEggDrop_recursive(K, N);
 }
 
+// const JUMP_RATIO = 1 / Math.E;
+// const JUMP_RATIO = 0.35; //685K
+// const JUMP_RATIO = 0.4; //642K
+// const JUMP_RATIO = 0.5; //635K
+// const JUMP_RATIO = 0.55; //619K
+// const JUMP_RATIO = 0.56; //616K
+// const JUMP_RATIO = 0.57; //573K
+// const JUMP_RATIO = 0.5705; //565K
+// const JUMP_RATIO = 0.57075; //564K
+// const JUMP_RATIO = 0.5709; //563K
+// const JUMP_RATIO = 0.571; //561K
+// const JUMP_RATIO = 0.5711; //555K
+// const JUMP_RATIO = 0.57115; //554K
+// const JUMP_RATIO = 0.5712; //552K
+// const JUMP_RATIO = 0.57124; //551K
+// const JUMP_RATIO = 0.571245; //550.3K
+// const JUMP_RATIO = 0.5712475; //550.3K
+// const JUMP_RATIO = 0.571249; //550.3K
+// const JUMP_RATIO = 0.57125; //550.2K
+// const JUMP_RATIO = 0.5712505; //550.20K
+// const JUMP_RATIO = 0.5712507; //550.20K
+// const JUMP_RATIO = 0.5712508; //550.19K
+// const JUMP_RATIO = 0.5712509; //550.19K
+// const JUMP_RATIO = 0.57125095; //550.19K
+// const JUMP_RATIO = 0.571251; //550.19K // Also best time
+// const JUMP_RATIO = 0.5712511; //550.19K
+// const JUMP_RATIO = 0.5712512; //550.22K
+// const JUMP_RATIO = 0.5712515; //550.22K
+// const JUMP_RATIO = 0.571252; //551.04K
+// const JUMP_RATIO = 0.571255; //551.3K
+// const JUMP_RATIO = 0.57126; //551K
+// const JUMP_RATIO = 0.5713; //561K
+// const JUMP_RATIO = 0.5715; //583K
+// const JUMP_RATIO = 0.572; //583K
+// const JUMP_RATIO = 0.575; //585K
+// const JUMP_RATIO = 0.58125; //595K
+// const JUMP_RATIO = 0.6; //629K
+// const JUMP_RATIO = 0.7; //712K
+let JUMP_RATIO = 0.5;
 const bestJumpRatios = {};
+let callCount = 0;
 const shouldLogBest = false;
-const memoized = {};
+
+let memoized = {};
 const superEggDrop_recursive = (K, N) => {
+    callCount++;
+
     // If no eggs, invalid
     if (K === 0) {
         return Infinity;
@@ -41,7 +84,6 @@ const superEggDrop_recursive = (K, N) => {
     let bestHigh = Infinity;
     let bestLow = Infinity;
 
-    const JUMP_RATIO = 0.5;
     let f = ((fBestHigh - fBestLow - 2) * JUMP_RATIO) | 0 + fBestLow + 1;
 
     while (fBestHigh > fBestLow + 1) {
@@ -104,8 +146,6 @@ const verify = (eggs, floors, expected) => {
 }
 
 const test = () => {
-    const b = bestJumpRatios;
-
     // Provided
     verify(2, 6, 3);
     verify(3, 14, 4);
@@ -135,4 +175,24 @@ const test = () => {
     verify(10, 16, 5);
 };
 
-test();
+// test();
+
+const optimize = () => {
+    const results = [];
+
+    for (JUMP_RATIO = 0.4; JUMP_RATIO < 0.6; JUMP_RATIO += 0.0025) {
+        const c = callCount = 0;
+        memoized = {};
+        const timeStart = Date.now();
+
+        test();
+
+        const timeEnd = Date.now();
+        const timeDelta = timeEnd - timeStart;
+        results.push({ timeDelta, JUMP_RATIO, callCount });
+    }
+
+    const done = true;
+};
+
+optimize();

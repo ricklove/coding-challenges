@@ -11,8 +11,6 @@ class RandomizedCollection {
     constructor() {
         this._items = [];
         this._keyIndexes = {};
-        this._count = 0;
-        this._freeIndexes = [];
     }
 
     /**
@@ -23,13 +21,10 @@ class RandomizedCollection {
     insert(val) {
         const items = this._items;
         const keyIndexes = this._keyIndexes;
-        const freeIndexes = this._freeIndexes;
 
-        const i = freeIndexes.length ? freeIndexes.pop() : items.length;
-        items[i] = val;
+        const i = items.push(val) - 1;
         keyIndexes[val] = (keyIndexes[val] || []);
         keyIndexes[val].push(i);
-        this._count++;
 
         return (keyIndexes[val].length == 1);
     }
@@ -42,14 +37,33 @@ class RandomizedCollection {
     remove(val) {
         const items = this._items;
         const keyIndexes = this._keyIndexes;
-        const freeIndexes = this._freeIndexes;
 
         if (!keyIndexes[val] || !keyIndexes[val].length) { return false; }
 
+        // Remove that index
         const i = keyIndexes[val].pop();
-        items[i] = undefined;
-        this._count--;
-        this._freeIndexes.push(i);
+
+        // Move the last item to that index
+        const newVal = items.pop();
+        const iToRemove = items.length;
+
+        // If i was the last index, then already done
+        if (i === iToRemove) { return true; }
+
+        // Move newValue to empty index
+        items[i] = newVal;
+
+        // Remove extra keyIndex
+        const k = keyIndexes[newVal];
+        if (k[k.length - 1] === iToRemove) {
+            k.pop();
+        } else {
+            const kIndex = k.indexOf(iToRemove);
+            k[kIndex] = k.pop();
+        }
+
+        // Add new keyIndex
+        k.push(i);
 
         return true;
     }
@@ -59,15 +73,10 @@ class RandomizedCollection {
      * @return {number}
      */
     getRandom() {
-        if (this._count <= 0) { return 0; }
-
         const items = this._items;
+        if (!items.length) { return 0; }
 
-        while (true) {
-            const iRand = (Math.random() * items.length) | 0;
-            const val = items[iRand];
-            if (val !== undefined) { return val; }
-        }
+        return items[(items.length * Math.random()) | 0];
     }
 }
 
@@ -101,6 +110,20 @@ const test = () => {
 
     // getRandom should return 1 and 2 both equally likely.
     verify(collection.getRandom(), [1, 2]);
+
+
+    verify(collection.insert(2), false);
+    verify(collection.insert(2), false);
+    verify(collection.insert(2), false);
+    verify(collection.insert(1), false);
+    verify(collection.insert(1), false);
+    verify(collection.insert(1), false);
+    verify(collection.remove(1), true);
+    verify(collection.remove(1), true);
+    verify(collection.remove(1), true);
+    verify(collection.remove(2), true);
+    verify(collection.remove(2), true);
+    verify(collection.remove(2), true);
 
     verify(collection.remove(1), true);
     verify(collection.remove(1), false);

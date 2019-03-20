@@ -7,6 +7,73 @@ const superEggDrop = (K, N) => {
     return superEggDrop_recursive(K, N);
 }
 
+let memoized = {};
+const superEggDrop_recursive = (K, N) => {
+
+    // If no eggs, invalid
+    if (K === 0) {
+        return Infinity;
+    }
+
+    // If no floors left, done
+    if (N <= 0) { return 0; }
+
+    // If only one floor left, do it
+    if (N <= 1) { return 1; }
+
+    // If only one egg left, have to work from the bottom and try every floor
+    if (K === 1) { return N; }
+
+    // If 2 floors, they both must be tested
+    if (N <= 2) { return 2; }
+
+    if (!memoized[K]) { memoized[K] = {}; }
+    const m = memoized[K][N];
+    if (m) { return m; }
+
+    // Search for best floor range 
+    // The cost of top decreases as it moves down
+    // The cost of bottom decreases as it moves up
+    // So best is where bottomCost == topCost
+    let fBestHigh = N + 1;
+    let fBestLow = 0;
+    let bestHigh = Infinity;
+    let bestLow = Infinity;
+    const JUMP_RATIO = 0.571251;
+
+    let f = ((fBestHigh - fBestLow - 2) * JUMP_RATIO) | 0 + fBestLow + 1;
+
+    while (fBestHigh > fBestLow + 1) {
+
+        // Try the bottom if broken egg
+        const bottom = superEggDrop_recursive(K - 1, f - 1);
+
+        // Try the top if not broken
+        const top = superEggDrop_recursive(K, N - f);
+
+        // Use the worst case between bottom and top
+        const diff = top - bottom;
+
+        if (diff < 0) {
+            // If bottom is most expensive => go Lower
+            bestHigh = bottom;
+            fBestHigh = f;
+        } else {
+            // If top is most expensive => go Higher
+            bestLow = top;
+            fBestLow = f;
+        }
+
+        f = ((fBestHigh - fBestLow - 2) * JUMP_RATIO) | 0 + fBestLow + 1;
+    }
+
+    const best = bestHigh < bestLow ? bestHigh : bestLow;
+    const result = best + 1;
+    memoized[K][N] = result;
+    return result;
+};
+
+// Optimizing
 // const JUMP_RATIO = 1 / Math.E;
 // const JUMP_RATIO = 0.35; //685K
 // const JUMP_RATIO = 0.4; //642K
@@ -50,8 +117,8 @@ const bestJumpRatios = {};
 let callCount = 0;
 const shouldLogBest = false;
 
-let memoized = {};
-const superEggDrop_recursive = (K, N) => {
+let memoized_test = {};
+const superEggDrop_recursive_test = (K, N) => {
     callCount++;
 
     // If no eggs, invalid
@@ -71,8 +138,8 @@ const superEggDrop_recursive = (K, N) => {
     // If 2 floors, they both must be tested
     if (N <= 2) { return 2; }
 
-    if (!memoized[K]) { memoized[K] = {}; }
-    const m = memoized[K][N];
+    if (!memoized_test[K]) { memoized_test[K] = {}; }
+    const m = memoized_test[K][N];
     if (m) { return m; }
 
     // Search for best floor range 
@@ -89,10 +156,10 @@ const superEggDrop_recursive = (K, N) => {
     while (fBestHigh > fBestLow + 1) {
 
         // Try the bottom if broken egg
-        const bottom = superEggDrop_recursive(K - 1, f - 1);
+        const bottom = superEggDrop_recursive_test(K - 1, f - 1);
 
         // Try the top if not broken
-        const top = superEggDrop_recursive(K, N - f);
+        const top = superEggDrop_recursive_test(K, N - f);
 
         // Use the worst case between bottom and top
         const diff = top - bottom;
@@ -132,7 +199,7 @@ const superEggDrop_recursive = (K, N) => {
 
     const best = bestHigh < bestLow ? bestHigh : bestLow;
     const result = best + 1;
-    memoized[K][N] = result;
+    memoized_test[K][N] = result;
     return result;
 };
 
@@ -183,6 +250,7 @@ const optimize = () => {
     for (JUMP_RATIO = 0.4; JUMP_RATIO < 0.6; JUMP_RATIO += 0.0025) {
         const c = callCount = 0;
         memoized = {};
+        memoized_test = {};
         const timeStart = Date.now();
 
         test();

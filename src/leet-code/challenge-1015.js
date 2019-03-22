@@ -1,4 +1,5 @@
 /** Return the number of values <= N that contain a duplicate digit
+ * Author: Rick Love
  * @param {number} N
  * @return {number}
  */

@@ -84,18 +84,6 @@ var numDupDigitsAtMostN = function (N) {
     return N - countNonDups;
 };
 
-const nonRepeatOfAnyDigits_removeDuplicateLeadingZeros = (digitCount) => {
-    return permute(10, digitCount) - factorial(digitCount - 2) * 9;
-};
-
-const nonRepeatOfAnyDigits_withLeadingZeros = (digitCount) => {
-    return nonRepeatOfAnyDigits_skipLeadingZeros(digitCount) + nonRepeatOfAnyDigits_withLeadingZeros(digitCount - 1);
-};
-
-const nonRepeatOfAnyDigits_skipLeadingZeros = (digitCount) => {
-    return (permute(10, digitCount) * 9 / 10) | 0;
-};
-
 /** k Permutations of n
  * 
  * @param {Number of Items} n 

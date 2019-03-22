@@ -20,7 +20,7 @@ var numDupDigitsAtMostN = function (N) {
     // 234[01234 ^234]   = ([a ^left])
 
     // Leading Zeros
-    const leadingZeros = (_N) => {
+    const nonDup_leadingZeros = (_N) => {
         let _countNonDups = 0;
         let l = (_N + '').length - 2;
         while (l >= 0) {
@@ -32,7 +32,7 @@ var numDupDigitsAtMostN = function (N) {
     }
 
     // Non-leading Zeros
-    const nonLeadingZeros = (_N) => {
+    const nonDup_nonLeadingZeros = (_N) => {
         if (_N < 10) { return _N; }
 
         let _countNonDups = 0;
@@ -42,7 +42,7 @@ var numDupDigitsAtMostN = function (N) {
             const a = parseInt(right[0]);
             // All digits up to a {0...a}
             const aDigits = new Array(a + 1).fill(0).map((x, i) => i);
-            const aLowChoices =
+            const aChoices =
                 // First digit = <a ^0 
                 left.length === 0 ? aDigits.filter(x => x < a).filter(x => x > 0)
                     // Last digits = <=a ^left 
@@ -52,7 +52,7 @@ var numDupDigitsAtMostN = function (N) {
                             // Mid digits = <a ^left 
                             : aDigits.filter(x => x < a).filter(x => left.indexOf(x) < 0);
 
-            const aMult = aLowChoices.length;
+            const aMult = aChoices.length;
             const pSize = 10 - left.length - 1;
 
             if (right.length === 1) {
@@ -65,14 +65,20 @@ var numDupDigitsAtMostN = function (N) {
                 _countNonDups += aMult * pMult;
             }
 
-            left += right[0];
+            const nextDigit = right[0];
+            // If the remaining options would have duplicates, done
+            if (left.indexOf(nextDigit) >= 0) {
+                break;
+            }
+
+            left += nextDigit;
             right = right.substr(1);
         }
         return _countNonDups;
     }
 
-    const countNonDups_zeros = leadingZeros(N);
-    const countNonDups_nonZeros = nonLeadingZeros(N);
+    const countNonDups_zeros = nonDup_leadingZeros(N);
+    const countNonDups_nonZeros = nonDup_nonLeadingZeros(N);
     const countNonDups = countNonDups_zeros + countNonDups_nonZeros;
     return N - countNonDups;
 };
@@ -249,6 +255,7 @@ function test() {
     // verify_callback(nonRepeatOfAnyDigits_removeDuplicateLeadingZeros, 2, 9);
     // verify_callback(nonRepeatOfAnyDigits_removeDuplicateLeadingZeros, 3);
 
+    verify(110, 12);
     verify(10, 0);
     verify(100, 10);
     verify(1000, 262);

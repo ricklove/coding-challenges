@@ -2,7 +2,7 @@
 // Start: 
 // End: 
 
-var method = function (n = 0) {
+var isInterleave = function (n = 0) {
     return 0;
 };
 
@@ -23,7 +23,7 @@ const verify = (call, expected) => {
 }
 
 function test() {
-    verify(() => method(0), 0);
+    verify(() => isInterleave(0), 0);
 
 }
 
